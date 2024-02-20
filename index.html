@@ -19,9 +19,13 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
 
+    <!-- Leaflet Control Layers using github copilot!!!!!!..............WOW this thing is POWERFUL-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-layers@3.1.1/dist/L.Control.Layers.min.css" />
+    <script src="https://unpkg.com/leaflet-control-layers@3.1.1/dist/L.Control.Layers.min.js"></script>
+    <script src="https://unpkg.com/leaflet-providers"></script>
+
     <style>
-        #map { height: 720px;
-        width: 720px;}
+        #map { height: 100vh;}
     </style>
 
 </head>
@@ -32,12 +36,79 @@
 
     <script>// initialize the map
 
-        var map = L.map('map').setView([51.505, -0.09], 13);
-
+        var map = L.map('map').setView([40.748817, -73.985428], 14);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
+
+        // Define base maps and adding toggle control to the map with aid from github copilot
+        var baseMaps = {
+            "Street": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }),
+            "Satellite": L.tileLayer.provider('Esri.WorldImagery'),
+            "Dark Theme": L.tileLayer.provider('CartoDB.DarkMatter')
+        };
+
+        // Add base map control to the map
+        L.control.layers(baseMaps).addTo(map);
+
+        // Set initial base map
+        baseMaps["Street"].addTo(map);
+
+        // Add a marker to the map with my own flare on the mepire state and madison square garden
+        var empire = L.marker([40.748817, -73.985428]).addTo(map);
+
+        var madisonSqG = L.marker([40.7505, -73.9934]).addTo(map);
+
+        var circle = L.circle([40.748817, -73.985428], {
+            color: 'red',
+            fillColor: '#f15',
+            fillOpacity: 0.25,
+            radius: 500
+        }).addTo(map);
+
+        //now adding a polygon to the map specifically around central park
+        var polygon = L.polygon([
+            [40.7644, -73.9731],
+            [40.7992, -73.9580],
+            [40.7963, -73.9493],
+            [40.7644, -73.9656]
+        ]).addTo(map);
+
+        //after doing this we see that there is a coordinate system discrepancy with the polygon and the marker with the central park polygon being off by a few blocks and the marker being off by a few blocks as well. This is due to the fact that the coordinates are not in the same coordinate system. The coordinates for the marker are in the WGS84 coordinate system and the coordinates for the polygon are in the NAD83 coordinate system. This is a common problem when working with spatial data and it is important to make sure that all of the data is in the same coordinate system before doing any analysis or visualization. This can be done by using a GIS software to reproject the data into the same coordinate system or by using a library like Proj4js to reproject the data in the browser. In this case, we will use Proj4js to reproject the data in the browser. We will use the Proj4js library to reproject the coordinates of the polygon from NAD83 to WGS84 and then add the polygon to the map. This will ensure that the polygon and the marker are in the same coordinate system and will be displayed in the correct location on the map.
+        //woahhhh I did not type all that and clearly copilot took over and completed an entire explanation for me ^^^^^^^^ I only typed up to "by a few blocks"
+
+        //Now adding popups to the marker and the polygon
+        madisonSqG.bindPopup("<b>Hello world!</b><br>I am Madison Square Garden.").openPopup();
+        empire.bindPopup("This is the Empire State Building, you found me!.");
+        circle.bindPopup("I am a circle, try to find the Empire State Building here!.");
+        polygon.bindPopup("I am a polygon, just off a few blocks for Central park.");
+
+        //Adding a standalone popup to the map
+        var popup = L.popup()
+            .setLatLng([40.7644, -73.9656])
+            .setContent("I am a standalone popup. I am clearly not in the southeast corner of Central Park.")
+            .openOn(map);
+
+        //adding events
+        //function onMapClick(e) {
+       //     alert("You clicked the map at " + e.latlng);
+        //}
+       // map.on('click', onMapClick);
+
+        //Now using a popup to display the coordinates of the clicked location instead of an alert
+        function onMapClick(e) {
+            popup
+                .setLatLng(e.latlng)
+                .setContent("You clicked the map at " + e.latlng.toString())
+                .openOn(map);
+        }
+
+        map.on('click', onMapClick);
+        
 
     </script>
 
